@@ -11,6 +11,8 @@ COPY myapp.py .
 RUN pip install requests
 
 # Définir la variable d'environnement pour la clé Hugging Face
+ENV HUGGING_FACE_API_KEY=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
 
 # Exécuter le script Python au démarrage du conteneur
-CMD ["python", "-m", "vllm.entrypoints.api_server", "--model", "Qwen/Qwen2.5-Coder-1.5B"]
+CMD ["python", "myapp.py"]
+# CMD ["python", "-m", "vllm.entrypoints.api_server", "--model", "Qwen/Qwen2.5-Coder-1.5B"]
