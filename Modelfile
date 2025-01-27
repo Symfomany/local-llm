@@ -1,0 +1,3 @@
+FROM ./model/phi-3-mini-4k-instruct-q4.gguf
+PARAMETER temperature 0.2
+SYSTEM "Vous êtes un assistant IA spécialisé en développement Python"
