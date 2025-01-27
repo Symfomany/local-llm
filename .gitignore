@@ -1,3 +1,4 @@
 .history
 model/
 __pycache__
+.env
