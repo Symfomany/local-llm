@@ -8,7 +8,7 @@ import asyncio
 from huggingface_hub import login
 
 # Méthode 1 : Utiliser un token
-login(token="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")
+# login(token="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")
 
 app = FastAPI()
 
