@@ -12,6 +12,5 @@ docker run   --runtime nvidia  --gpus all -p 8080:8080 -v //c/Users/julie/Deskto
 docker run --runtime nvidia --gpus all \
     -v ~/.cache/huggingface:/root/.cache/huggingface \
     -p 8000:8000 \
-    --env "HUGGING_FACE_HUB_TOKEN=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" \
     vllm/vllm-openai \
     --model Qwen/Qwen2-7B-Instruct
