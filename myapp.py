@@ -88,7 +88,6 @@ def requests_retry_session(retries=3, backoff_factor=0.3, status_forcelist=(500,
 try:
     response = requests_retry_session().post(
         vllm_api_url, headers=headers, json=data, timeout=30)
-    response.raise_for_status()
     
     # Vérifier si la requête a réussi
     if response.status_code == 200:

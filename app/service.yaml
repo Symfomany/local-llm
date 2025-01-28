@@ -1,0 +1,15 @@
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: mon-service
+spec:
+  template:
+    spec:
+      containers:
+      - image: gcr.io/$PROJECT_ID/vllm
+        name: vllm
+      - image: gcr.io/$PROJECT_ID/myapp
+        name: myapp
+        env:
+        - name: VLLM_API_URL
+          value: "http://localhost:8000"

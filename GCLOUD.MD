@@ -72,3 +72,17 @@ Le schéma Mermaid illustre le processus de déploiement d'une application utili
 11. Les utilisateurs peuvent maintenant faire des requêtes API au service déployé sur Cloud Run.
 
 Cette architecture permet un déploiement sécurisé et efficace d'une application d'IA, en utilisant les meilleures pratiques de gestion des secrets et d'automatisation du déploiement sur GCP.
+
+
+# Deploy
+
+gcloud beta run deploy mon-service \
+  --image gcr.io/$PROJECT_ID/myapp \
+  --platform managed \
+  --region europe-west4 \
+  --cpu 4 \
+  --memory 16Gi \
+  --gpu 1 \
+  --gpu-type nvidia-l4 \
+  --max-instances 5 \
+  --no-cpu-throttling

@@ -20,4 +20,4 @@ ENV PORT=8080
 
 # Exécuter le script Python au démarrage du conteneur
 # CMD ["python", "myapp.py"]
-CMD ["python", "-m", "vllm.entrypoints.openai.api_server", "--model", "Qwen/Qwen2.5-Coder-1.5B", "--host", "0.0.0.0", "--port", "8080"]
+CMD ["python", "-m", "vllm.entrypoints.openai.api_server", "--model", "Qwen/Qwen2.5-Coder-1.5B", "--host", "0.0.0.0", "--port", "8000"]

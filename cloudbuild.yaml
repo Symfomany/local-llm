@@ -1,0 +1,10 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['compose', 'build']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/vllm']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', 'gcr.io/$PROJECT_ID/myapp']
+images:
+  - 'gcr.io/$PROJECT_ID/vllm'
+  - 'gcr.io/$PROJECT_ID/myapp'

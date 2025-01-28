@@ -6,6 +6,7 @@ services:
     runtime: nvidia
     environment:
       - HUGGING_FACE_HUB_TOKEN=${HUGGING_FACE_API_KEY}
+      - MODEL_NAME=${MODEL_NAME}
     volumes:
       - ~/.cache/huggingface:/root/.cache/huggingface
     ports:

@@ -1,10 +1,9 @@
-FROM python:3.9
+# Utilisez l'image de base de votre service
+FROM vllm/vllm-openai:latest
 
-WORKDIR /app
+# Copiez les fichiers nécessaires (si besoin)
+# COPY . /app
 
-COPY myapp.py .
-COPY requirements.txt .
-
-RUN pip install --no-cache-dir -r requirements.txt
-
-CMD ["python", "myapp.py"]
+# Commande par défaut pour démarrer le serveur
+# CMD ["python", "-m", "vllm.entrypoints.openai.api_server", "--model", "Qwen/Qwen2.5-Coder-1.5B", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["vllm.entrypoints.openai.api_server", "--model", "${MODEL_NAME}", "--host", "0.0.0.0", "--port", "8000", "--trust-remote-code"]

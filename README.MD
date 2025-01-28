@@ -1,10 +1,121 @@
 Bien sûr, je peux vous aider à configurer ces variables pour gcloud CLI. Voici les commandes pour définir ces variables d'environnement dans votre session de terminal actuelle :
 
+
+# Build Cloud Run
+
+## Deploy vLLM 
+```bash
+gcloud beta run deploy vllm-server \
+  --image vllm/vllm-openai:latest \
+  --platform managed \
+  --region europe-west4 \
+  --cpu 4 \
+  --memory 16Gi \
+  --gpu 1 \
+  --gpu-type nvidia-l4 \
+  --set-env-vars HUGGING_FACE_HUB_TOKEN=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 \
+  --set-env-vars MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B \
+  --timeout 3600 \
+  --args "vllm.entrypoints.openai.api_server","--model","Qwen/Qwen2.5-Coder-1.5B","--host","0.0.0.0","--port","8000","--trust-remote-code" \
+  --port 8000 \
+  --no-cpu-throttling
+```
+
+
+# Déployer sur Cloud Run avec variables (apres artifact)
+
+```bash
+gcloud beta run deploy $SERVICE_NAME \
+    --image=$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME \
+    --platform=managed \
+    --cpu 4 \
+    --region europe-west4 \
+    --timeout 3600 \
+    --memory 16Gi \
+    --gpu 1 \
+    --port 8000 \
+    --no-cpu-throttling \
+    --allow-unauthenticated \
+    --set-env-vars=HUGGING_FACE_API_KEY=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,MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B
+
+
+gcloud beta run deploy vllm-server \
+    --image=$REGION-docker.pkg.dev/$PROJECT_ID/$REPO_NAME/$SERVICE_NAME \
+    --platform=managed \
+    --allow-unauthenticated \
+    --region=$REGION \
+    --set-env-vars=HUGGING_FACE_API_KEY=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,MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B \
+    --cpu=4 \
+    --memory 16Gi \
+    --min-instances=1 \
+    --max-instances=2
+```
+
+# Créer dans ma regfion  un artifact basé sur Docker:
+```bash
+gcloud artifacts repositories create my-docker-repo \
+    --repository-format=docker \
+    --location=europe-west4 
+```
+
+# Construire et taguer vos images Docker
+```bash
+docker build -t europe-west4-docker.pkg.dev/decent-destiny-448418-p1/my-docker-repo/vllm_server .
+```
+
+# Pusher mon image docker
+```bash
+docker push europe-west4-docker.pkg.dev/decent-destiny-448418-p1/my-docker-repo/vllm_server
+```
+
+# Verifier: avec variables
+```bash
+gcloud run deploy vllm-server \
+    --image=[REGION]-docker.pkg.dev/[PROJECT_ID]/my-docker-repo/vllm_server \
+    --platform=managed \
+    --allow-unauthenticated \
+    --set-env-vars=HUGGING_FACE_API_KEY=your_token,MODEL_NAME=your_model
+```
+# Lister les repositories des artifact
+```bash
+gcloud artifacts repositories list --location=europe-west4
+```
+
+# Read the logs
+```bash
+gcloud run services logs read vllm-server --region europe-west4
+```
+
+# Test Curl 
+```bash
+  curl -X POST https://vllm-server-666271192600.europe-west4.run.app/v1/completions \
+  -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
+  -H "Content-Type: application/json" \
+  -d '{
+      "model": "Qwen/Qwen2.5-Coder-1.5B",
+      "prompt": "Écrivez une fonction Python pour calculer la factorielle",
+      "max_tokens": 100,
+      "temperature": 0.7
+  }'
+```
+
+# Permission Artifact Repository
+```bash
+gcloud auth login
+gcloud auth configure-docker europe-west4-docker.pkg.dev
+```
+
+Service [vllm-server] revision [vllm-server-00001-qbz] has been deployed and is serving 100 percent of traffic.
+Service URL: https://vllm-server-666271192600.europe-west4.run.app
+
+
 ```bash
 export PROJECT_ID=decent-destiny-448418-p1
-export REGION=europe-west3
+export REGION=europe-west4
 export SERVICE_NAME=llm-runtime
 ```
+
+
 
 Ces commandes définissent les variables d'environnement que vous pourrez utiliser dans vos commandes gcloud. Pour vérifier que les variables ont été correctement définies, vous pouvez utiliser la commande `echo` :
 
