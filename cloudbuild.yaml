@@ -1,10 +1,39 @@
 steps:
+  # Étape 1 : Construire l'image Docker
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['compose', 'build']
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}'
+      - '.'
+
+  # Étape 2 : Pousser l'image vers Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/vllm']
-  - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/myapp']
-images:
-  - 'gcr.io/$PROJECT_ID/vllm'
-  - 'gcr.io/$PROJECT_ID/myapp'
+    args:
+      - 'push'
+      - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}'
+
+  # Étape 3 : Déployer sur Cloud Run
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_SERVICE_NAME}'
+      - '--image'
+      - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+      - '--region=${_REGION}'
+      - '--cpu=4'
+      - '--memory=16Gi'
+      - '--min-instances=1'
+      - '--max-instances=2'
+      - '--set-env-vars=HUGGING_FACE_API_KEY=${HUGGING_FACE_API_KEY},MODEL_NAME=${MODEL_NAME}'
+
+substitutions:
+  _PROJECT_ID: 'decent-destiny-448418-p1' # Remplacez par votre ID de projet
+  _REGION: 'europe-west4'                # Remplacez par votre région
+  _REPO_NAME: 'my-docker-repo'           # Nom de votre dépôt Artifact Registry
+  _SERVICE_NAME: 'vllm-server'           # Nom de votre service Cloud Run
+
+timeout: '3600s' # Temps maximum pour exécuter le build
