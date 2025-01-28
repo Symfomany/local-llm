@@ -38,3 +38,5 @@ substitutions:
   _SERVICE_NAME: 'vllm-server'           # Nom de votre service Cloud Run
 
 timeout: '3600s' # Temps maximum pour exécuter le build
+options:
+  logging: CLOUD_LOGGING_ONLY
