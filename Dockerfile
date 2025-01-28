@@ -1,18 +1,10 @@
-# Utiliser l'image officielle vLLM
-FROM vllm/vllm-openai:latest
+FROM python:3.9
 
-# Définir le répertoire de travail
 WORKDIR /app
 
-# Copier le script Python dans le conteneur
 COPY myapp.py .
+COPY requirements.txt .
 
-# Installer les dépendances supplémentaires si nécessaire
-RUN pip install requests
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Définir la variable d'environnement pour la clé Hugging Face
-ENV HUGGING_FACE_API_KEY=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
-
-# Exécuter le script Python au démarrage du conteneur
 CMD ["python", "myapp.py"]
-# CMD ["python", "-m", "vllm.entrypoints.api_server", "--model", "Qwen/Qwen2.5-Coder-1.5B"]

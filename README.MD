@@ -86,8 +86,8 @@ Essayez de construire et d'exécuter votre conteneur localement pour vérifier s
 docker build -t qwen-api .
 docker run    --gpus all  -p 8080:8080 -e PORT=8080 qwen-api 
 docker run --name qwen-container   --gpus all  -p 8080:8080 -e PORT=8080 qwen-api 
-
 ```
+
 Examples of ollama:
 https://github.com/ollama/ollama-python/tree/main/examples
 

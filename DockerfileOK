@@ -1,0 +1,23 @@
+# Utiliser l'image officielle vLLM
+FROM vllm/vllm-openai:latest
+
+WORKDIR /app
+
+COPY myapp.py .
+
+# COPY requirements.txt .
+# RUN --mount=type=cache,target=/root/.cache/pip \
+#     pip install -r requirements.txt
+
+RUN pip install requests
+
+ENV HUGGING_FACE_API_KEY=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
+ENV TEMPERATURE=0.7
+ENV TOP_P=0.95
+ENV MAX_TOKENS=100
+ENV MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B
+ENV PORT=8080
+
+# Exécuter le script Python au démarrage du conteneur
+# CMD ["python", "myapp.py"]
+CMD ["python", "-m", "vllm.entrypoints.openai.api_server", "--model", "Qwen/Qwen2.5-Coder-1.5B", "--host", "0.0.0.0", "--port", "8080"]

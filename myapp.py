@@ -1,21 +1,46 @@
 import os
-from vllm import LLM, SamplingParams
+import requests
+import json
 
-# Récupérer la clé API Hugging Face depuis les variables d'environnement
+# Récupérer les variables d'environnement
+# vllm_api_url = os.environ.get(
+#     "VLLM_API_URL", "http://localhost:8000/v1/completions")
+vllm_api_url = "http://host.docker.internal:8000/v1/completions"
+
 hf_api_key = os.environ.get("HUGGING_FACE_API_KEY")
 
-# Initialiser le modèle
-model = LLM(model="Qwen/Qwen2.5-Coder-1.5B", trust_remote_code=True)
+if not hf_api_key:
+    raise ValueError(
+        "La clé API Hugging Face n'est pas définie dans les variables d'environnement.")
 
-# Définir les paramètres d'échantillonnage
-sampling_params = SamplingParams(temperature=0.7, top_p=0.95, max_tokens=100)
+# Récupérer les paramètres d'échantillonnage depuis les variables d'environnement
+temperature = float(os.environ.get("TEMPERATURE", 0.2))
+top_p = float(os.environ.get("TOP_P", 0.95))
+max_tokens = int(os.environ.get("MAX_TOKENS", 500))
 
-# Prompt pour générer du code
-prompt = "Écrivez une fonction Python pour calculer la factorielle d'un nombre."
+# Définir les paramètres de la requête
+headers = {
+    "Content-Type": "application/json",
+    "Authorization": f"Bearer {hf_api_key}"
+}
 
-# Générer la réponse
-outputs = model.generate([prompt], sampling_params)
+data = {
+    "model": "Qwen/Qwen2.5-Coder-1.5B",
+    "prompt": "Écrivez une routine en Go",
+    "max_tokens": max_tokens,
+    "temperature": temperature,
+    "top_p": top_p
+}
 
-# Afficher la réponse
-for output in outputs:
-    print(output.text)
+# Envoyer la requête à l'API vLLM
+response = requests.post(vllm_api_url, headers=headers,
+                         json=data, timeout=30, retries=3)
+
+# Vérifier si la requête a réussi
+if response.status_code == 200:
+    result = response.json()
+    generated_text = result['choices'][0]['text']
+    print(generated_text)
+else:
+    print(f"Erreur lors de la requête : {response.status_code}")
+    print(response.text)
