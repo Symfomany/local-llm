@@ -35,7 +35,7 @@ substitutions:
   _HUGGING_FACE_API_KEY: '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'      
   _MODEL_NAME: 'Qwen/Qwen2.5-Coder-1.5B'
   _PROJECT_ID: 'decent-destiny-448418-p1' # Remplacez par votre ID de projet
-  _REGION: 'europe-west1'                # Remplacez par votre région
+  _REGION: 'europe-west2'                # Remplacez par votre région RESTREINTES 
   _REPO_NAME: 'my-docker-repo'           # Nom de votre dépôt Artifact Registry
   _SERVICE_NAME: 'vllm-server'           # Nom de votre service Cloud Run
 
