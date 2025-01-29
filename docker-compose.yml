@@ -24,10 +24,15 @@ services:
   myapp:
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: DockerfileLocal
     env_file:
       - .env
+    volumes:
+      - //c/Users/julie/Desktop/gcloudllm/CloudRun-LLM/model:/model
     ports:
       - "${PORT}:${PORT}"
     depends_on:
       - vllm_server
+
+volumes:
+  model_data:

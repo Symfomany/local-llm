@@ -1,20 +1,26 @@
-FROM python:3.9
+FROM python:3.9-slim
 
 WORKDIR /app
 
 COPY myapp.py .
 COPY requirements.txt .
-ENV PORT=8000
-ENV HOST=0.0.0.0
-EXPOSE 8000
+COPY run.py .
+
 ENV HUGGING_FACE_API_KEY=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
 ENV TEMPERATURE=0.7
 ENV TOP_P=0.95
 ENV MAX_TOKENS=100
 ENV MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B
 ENV PORT=8080
+ENV HOST=0.0.0.0
 
+# Définir /model comme un volume
+VOLUME /model
+
+EXPOSE 8080
 
 RUN pip install --no-cache-dir -r requirements.txt
 
-CMD ["python", "myapp.py"]
+
+
+CMD ["uvicorn", "run:app", "--host", "0.0.0.0", "--port", "8080"]

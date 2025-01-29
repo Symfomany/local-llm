@@ -86,6 +86,21 @@ gcloud artifacts repositories list --location=europe-west4
 gcloud run services logs read vllm-server --region europe-west4
 ```
 
+# Builder en local
+docker build -t europe-west2-docker.pkg.dev/decent-destiny-448418-p1/my-docker-repo/vllm-server .
+
+
+
+# Tester en lcoal
+docker push europe-west2-docker.pkg.dev/decent-destiny-448418-p1/my-docker-repo/vllm-server
+
+
+
+# Syn Docker avec  Artifacty Registry
+gcloud auth configure-docker europe-west2-docker.pkg.dev
+
+
+
 # Test Curl 
 ```bash
   curl -X POST https://vllm-server-666271192600.europe-west4.run.app/v1/completions \
