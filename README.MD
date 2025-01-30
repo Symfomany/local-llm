@@ -76,6 +76,7 @@ gcloud run deploy vllm-server \
     --allow-unauthenticated \
     --set-env-vars=HUGGING_FACE_API_KEY=your_token,MODEL_NAME=your_model
 ```
+
 # Lister les repositories des artifact
 ```bash
 gcloud artifacts repositories list --location=europe-west4
@@ -237,3 +238,5 @@ docker buildx build --platform linux/amd64 -t qwen-api .
 ```
 
 Si le problème persiste après avoir vérifié ces points, examinez attentivement les logs de l'application pour identifier d'éventuelles erreurs spécifiques à votre code ou à votre configuration[1][7][15].
+
+

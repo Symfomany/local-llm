@@ -4,6 +4,5 @@ requests
 rich
 emoji
 httpx
-requests
-pydantic-settings
 pydantic
+pydantic-settings

@@ -1,0 +1,63 @@
+# datadog.yaml
+
+###########################
+# Basic Configuration
+###########################
+
+# Your Datadog API key (required)
+api_key: "bb607f65-b13f-4522-a8cd-42b355ff2734"
+
+# The Datadog site to send data to (default: datadoghq.com)
+# Use "datadoghq.eu" for the EU region
+site: "datadoghq.eu"
+
+###########################
+# Host Configuration
+###########################
+
+# Optional: Set a custom hostname (default: auto-detected)
+# hostname: "<CUSTOM_HOSTNAME>"
+
+# Optional: Use fully qualified domain name (FQDN) as hostname
+hostname_fqdn: true
+
+###########################
+# Logs Configuration
+###########################
+
+# Enable log collection (default: false)
+logs_enabled: true
+
+# Optional: Configure log sources
+logs_config:
+  container_collect_all: true  # Collect logs from all containers
+
+###########################
+# APM and Tracing
+###########################
+
+# Enable APM (Application Performance Monitoring) tracing (default: false)
+apm_config:
+  enabled: true
+
+  # Optional: Set the port for trace intake (default: 8126)
+  receiver_port: 8126
+
+###########################
+# Process Monitoring
+###########################
+
+process_config:
+  enabled: "true"  # Enable process monitoring
+
+###########################
+# Additional Settings
+###########################
+
+# Optional: Add global tags to your metrics, traces, and logs
+tags:
+  - "env:production"
+  - "team:web"
+
+# Optional: Enable debug logs for troubleshooting (default: INFO)
+log_level: DEBUG

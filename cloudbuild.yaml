@@ -1,6 +1,5 @@
 steps:
 
-  # Étape 1 : Construire l'image Docker
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'build'
@@ -8,13 +7,11 @@ steps:
       - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}'
       - '.'
 
-  # Étape 2 : Pousser l'image vers Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
     args:
       - 'push'
       - '${_REGION}-docker.pkg.dev/${_PROJECT_ID}/${_REPO_NAME}/${_SERVICE_NAME}'
 
-  # Étape 3 : Déployer sur Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'beta'
