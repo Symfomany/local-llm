@@ -141,13 +141,15 @@ def tokenization(request: Request) -> OpenAIServingTokenization:
     return request.app.state.openai_serving_tokenization
 
 def base(request: Request) -> OpenAIServing:
-    # Reuse the existing instance
     return tokenization(request)
-
 
 def completion(request: Request) -> Optional[OpenAIServingCompletion]:
     return request.app.state.openai_serving_completion
 
+
+"""
+   Routing for the API
+"""
 
 # Endpoint pour /v1/chat/completions (compatible OpenAI Chat API)
 @app.post("/v1/chat/completions")
