@@ -48,7 +48,7 @@ from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
 
 
 # Définition du modèle
-MODEL_NAME = "Qwen/Qwen2.5-1.5B-Instruct"
+MODEL_NAME =  "/model/Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf" # "Qwen/Qwen2.5-1.5B-Instruct"
 
 
 """
