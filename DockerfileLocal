@@ -2,8 +2,10 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-COPY myapp.py .
 COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY myapp.py .
 COPY run.py .
 
 ENV HUGGING_FACE_API_KEY=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
@@ -19,7 +21,6 @@ VOLUME /model
 
 EXPOSE 8080
 
-RUN pip install --no-cache-dir -r requirements.txt
 
 
 
