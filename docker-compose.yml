@@ -10,13 +10,12 @@ services:
   #     - MODEL_NAME=${MODEL_NAME}
   #   volumes:
   #     - ~/.cache/huggingface:/root/.cache/huggingface
-  #     - //c/Users/julie/Desktop/gcloudllm/CloudRun-LLM/model:/model
   #   ports:
   #     - "8000:8000"
   #   ipc: host
   #   command: >
-  #     --model /model/qwen2.5-coder-7b-instruct-q3_k_m.gguf
-  #     --gpu-memory-utilization 0.95
+  #     --model ${MODEL_NAME}
+  #     --gpu-memory-utilization 0.80
   #     --max-model-len 8192
   #     --kv-cache-dtype auto
   #     --max-num-seqs 128
@@ -28,17 +27,56 @@ services:
   #             count: all
   #             capabilities: [gpu]
 
-  
-  myapp:
+
+  test_vllm:
     build:
       context: .
-      dockerfile: DockerfileLocal
+      dockerfile: DockerfileRun
     env_file:
       - .env
     volumes:
-      - //c/Users/julie/Desktop/gcloudllm/CloudRun-LLM/model:/model
+      - //c/Users/pc/Desktop/gcp/local-llm/model:/model
     ports:
       - "${PORT}:${PORT}"
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '12.0'  # L'i9-14700KF a 20 cœurs, on en utilise 12
+          memory: 48G   # Limite à 48 Go de RAM
+        reservations:
+          cpus: '8.0'   # Réserve au moins 8 cœurs
+          memory: 32G   # Réserve au moins 32 Go de RAM
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+  
+  # myapp:
+  #   build:
+  #     context: .
+  #     dockerfile: DockerfileLocal
+  #   env_file:
+  #     - .env
+  #   volumes:
+  #     - //c/Users/pc/Desktop/gcp/local-llm/model:/model
+  #   ports:
+  #     - "${PORT}:${PORT}"
+
+  #   deploy:
+  #      resources:
+  #        reservations:
+  #          devices:
+  #            - driver: nvidia
+  #              count: all
+  #              capabilities: [gpu]
+
     # depends_on:
     #   - vllm_server
 

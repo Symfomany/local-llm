@@ -89,7 +89,7 @@ class ChatCompletionRequest(BaseModel):
 # Configuration du client vLLM
 # Ajustez l'URL selon votre configuration
 VLLM_SERVER_URL = "http://vllm_server:8000"
-MODEL = "/model/qwen2.5-coder-7b-instruct-q3_k_m.gguf"
+MODEL = "Qwen/Qwen2.5-Coder-7B-Instruct" # "/model/qwen2.5-coder-7b-instruct-q3_k_m.gguf"
 
 
 async def init():

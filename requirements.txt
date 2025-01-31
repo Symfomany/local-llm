@@ -1,10 +1,7 @@
 fastapi
 uvicorn
-requests
-asyncio
 # rich
 # emoji
-httpx
 pydantic
-pydantic-settings
 vllm
+asyncio
