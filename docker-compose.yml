@@ -40,6 +40,7 @@ services:
       - "${PORT}:${PORT}"
     environment:
       - CUDA_VISIBLE_DEVICES=0
+    shm_size: '16g'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -48,7 +49,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '12.0'  # L'i9-14700KF a 20 cœurs, on en utilise 12
+          cpus: '12.0'  # L'i9-14700KF a 20 cœurs, on en utilise 12 pour le CPU Offloading
           memory: 48G   # Limite à 48 Go de RAM
         reservations:
           cpus: '8.0'   # Réserve au moins 8 cœurs
