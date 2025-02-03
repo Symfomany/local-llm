@@ -28,18 +28,23 @@ services:
   #             capabilities: [gpu]
 
 
+  # Optimize with CUDA 
   test_vllm:
+    runtime: nvidia
     build:
       context: .
       dockerfile: DockerfileRun
     env_file:
       - .env
-    volumes:
-      - //c/Users/pc/Desktop/gcp/local-llm/model:/model
-    ports:
-      - "${PORT}:${PORT}"
     environment:
       - CUDA_VISIBLE_DEVICES=0
+    volumes:
+      # - //c/Users/pc/Desktop/gcp/local-llm/model:/model
+      # C:\Users\julie\Desktop\gcloudllm\CloudRun-LLM\model
+      - //c/Users/julie/Desktop/gcloudllm/CloudRun-LLM/model:/model
+      # - //d/models:/model
+    ports:
+      - "${PORT}:${PORT}"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
@@ -47,12 +52,13 @@ services:
       retries: 3
     deploy:
       resources:
-        limits:
-          cpus: '12.0'  # L'i9-14700KF a 20 cœurs, on en utilise 12
-          memory: 48G   # Limite à 48 Go de RAM
         reservations:
-          cpus: '8.0'   # Réserve au moins 8 cœurs
-          memory: 32G   # Réserve au moins 32 Go de RAM
+        # limits:
+        #   cpus: '12.0'  # L'i9-14700KF a 20 cœurs, on en utilise 12
+        #   memory: 48G   # Limite à 48 Go de RAM
+        # reservations:
+        #   cpus: '8.0'   # Réserve au moins 8 cœurs
+        #   memory: 32G   # Réserve au moins 32 Go de RAM
           devices:
             - driver: nvidia
               count: 1

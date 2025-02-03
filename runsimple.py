@@ -1,31 +1,3 @@
-# from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
-# from vllm.engine.arg_utils import AsyncEngineArgs
-# from vllm.engine.async_llm_engine import AsyncLLMEngine
-# from vllm.transformers_utils.tokenizer import get_tokenizer
-
-
-
-# from vllm import LLM, SamplingParams
-
-# # Définition du modèle
-# model_name = "Qwen/Qwen2.5-1.5B-Instruct"
-
-# # Initialisation du modèle
-# llm = LLM(model=model_name)
-
-# # Définition du prompt
-# prompt = "Écris une fonction Python qui additionne deux nombres."
-
-# # Paramètres d'échantillonnage (ajustables)
-# sampling_params = SamplingParams(temperature=0.7, top_p=0.9, max_tokens=200)
-
-# # Génération du texte
-# outputs = llm.generate([prompt], sampling_params)
-
-# # Affichage du résultat
-# print(outputs[0].outputs[0].text)
-
-
 from fastapi import FastAPI, Request
 from typing import List, Optional
 import uvicorn
@@ -45,14 +17,17 @@ from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
                                               CompletionRequest,
                                               CompletionResponse,
                                               ErrorResponse)
-
+import os
 
 # Définition du modèle
-MODEL_NAME =  "/model/Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf" # "Qwen/Qwen2.5-1.5B-Instruct"
-
+# "Qwen/Qwen2.5-1.5B-Instruct"
+# "/model/Qwen2.5-Coder-7B-Instruct-IQ4_XS.gguf"
+# "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF"
+MODEL_NAME = os.getenv('MODEL_NAME')
+print("MODEL_NAME 🚀", MODEL_NAME)
 
 """
-    App from FastAPI
+    Documente cette fonction
 """
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -60,7 +35,6 @@ async def lifespan(app: FastAPI):
     app.state.engine = engine
     app.state.openai_serving_chat = openai_serving_chat
     yield
-
     await app.state.engine.close()
 
 
@@ -69,12 +43,18 @@ app = FastAPI(lifespan=lifespan)
 
 
 """
-    Init App
+    Init App in localhost
 """
 async def init_app():
 
     # Initialisation du moteur de manière asynchrone
-    engine_args = AsyncEngineArgs(model=MODEL_NAME)
+    engine_args = AsyncEngineArgs(model=MODEL_NAME,
+                                  tensor_parallel_size=1,  # Single GPU
+                                  gpu_memory_utilization=0.85,
+                                  quantization="gptq",  # Conversion en GPTQ : +40% tokens/s
+                                  trust_remote_code=True,
+                                  enforce_eager=False,
+                                  )
     engine =  AsyncLLMEngine.from_engine_args(engine_args)
 
     # Obtention de la configuration du modèle
@@ -99,14 +79,15 @@ async def init_app():
     )
     await openai_serving_models.init_static_loras()
     
-    # Création de OpenAIServingChat
+    
+    # Création de OpenAIServingChat et OpenAIServingTokenization
     app.state.openai_serving_chat = OpenAIServingChat(
         engine_client=engine,  # Le moteur d'inférence asynchrone pour  le modèle
         model_config=model_config, # La configuration du modèle
-        models=openai_serving_models, # Instance de OpenAIServingModels contenant les informations sur les modèles disponibles
+        models=openai_serving_models, # Instance of OpenAIServingModels 
         response_role="assistant", # Le rôle attribué aux réponses générées par le modèle
         request_logger=None,   # Logger pour les requêtes, désactivé ici
-        chat_template=None,  # Template de chat personnalisé, non utilisé ici
+        chat_template=None,  # Template de chat personnalisé
         chat_template_content_format="auto" 
     )
 
@@ -115,7 +96,7 @@ async def init_app():
         model_config=model_config,
         models=openai_serving_models,
         request_logger=None,
-        chat_template=None,  # Template de chat personnalisé, non utilisé ici
+        chat_template=None,  
         chat_template_content_format="auto" 
     )
 
@@ -123,8 +104,8 @@ async def init_app():
        engine_client = engine,
        model_config=model_config,
        models=openai_serving_models,
-        request_logger=None,
-        return_tokens_as_token_ids=False,
+       request_logger=None,
+       return_tokens_as_token_ids=False,
     )
 
     return engine, app.state.openai_serving_chat 
@@ -193,6 +174,6 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
 
 
 
-# Lancement du serveur avec Uvicorn
+#Run localhost with Uvicorn
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)
