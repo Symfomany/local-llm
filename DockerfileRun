@@ -11,12 +11,6 @@ COPY myapp.py .
 COPY run.py .
 
 ENV HUGGING_FACE_API_KEY=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
-ENV TEMPERATURE=0.7
-ENV TOP_P=0.95
-ENV MAX_TOKENS=100
-ENV MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B
-ENV PORT=8080
-ENV HOST=0.0.0.0
 
 # Définir /model comme un volume
 VOLUME /model

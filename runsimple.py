@@ -1,31 +1,3 @@
-# from vllm.entrypoints.openai.serving_chat import OpenAIServingChat
-# from vllm.engine.arg_utils import AsyncEngineArgs
-# from vllm.engine.async_llm_engine import AsyncLLMEngine
-# from vllm.transformers_utils.tokenizer import get_tokenizer
-
-
-
-# from vllm import LLM, SamplingParams
-
-# # Définition du modèle
-# model_name = "Qwen/Qwen2.5-1.5B-Instruct"
-
-# # Initialisation du modèle
-# llm = LLM(model=model_name)
-
-# # Définition du prompt
-# prompt = "Écris une fonction Python qui additionne deux nombres."
-
-# # Paramètres d'échantillonnage (ajustables)
-# sampling_params = SamplingParams(temperature=0.7, top_p=0.9, max_tokens=200)
-
-# # Génération du texte
-# outputs = llm.generate([prompt], sampling_params)
-
-# # Affichage du résultat
-# print(outputs[0].outputs[0].text)
-
-
 from fastapi import FastAPI, Request
 from typing import List, Optional
 import uvicorn
@@ -43,13 +15,12 @@ from vllm.entrypoints.utils import with_cancellation
 from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
                                               ChatCompletionResponse,
                                               CompletionRequest,
-                                              CompletionResponse,
-                                              ErrorResponse)
-
+                                              CompletionResponse, ErrorResponse)
+import os
 
 # Définition du modèle
-MODEL_NAME =  "/model/Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf" # "Qwen/Qwen2.5-1.5B-Instruct"
-
+MODEL_NAME =  os.getenv('MODEL_NAME') # "/model/Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf" # "Qwen/Qwen2.5-1.5B-Instruct"
+print("MODEL_NAME 🚀", MODEL_NAME)
 
 """
     App from FastAPI
