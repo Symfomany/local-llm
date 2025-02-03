@@ -46,10 +46,11 @@ async def init_app():
 
     # Initialisation du moteur de manière asynchrone
     engine_args = AsyncEngineArgs(model=MODEL_NAME,
-        quantization="awq", dtype="auto"
+        quantization="awq", 
+        dtype="auto",
         # cpu_offload_gb=10,
-        # gpu_memory_utilization=0.95,
-        #  quantization="fp8",
+        max_model_len=16384,
+        gpu_memory_utilization=0.95
     )
     engine =  AsyncLLMEngine.from_engine_args(engine_args)
 
