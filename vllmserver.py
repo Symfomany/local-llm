@@ -123,6 +123,10 @@ async def lifespan(app: FastAPI):
         del app.state
 
 
+
+def hello_world():
+        
+
 @asynccontextmanager
 async def build_async_engine_client(
         args: Namespace) -> AsyncIterator[EngineClient]:

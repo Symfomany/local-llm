@@ -1,0 +1,8 @@
+{
+  "handlers": {
+    "file": {
+      "class": "logging.FileHandler",
+      "filename": "./logs/vllm.log"
+    }
+  }
+}

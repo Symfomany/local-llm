@@ -5,10 +5,11 @@ WORKDIR /app
 COPY requirements.txt .
 # Installer les dépendances si requirements.txt n'a pas changé (utilise le cache)
 RUN pip install --no-cache-dir -r requirements.txt
-
+COPY logs .
 COPY runsimple.py .
 COPY myapp.py .
 COPY run.py .
+COPY logging_config.json .
 
 # Définir /model comme un volume
 VOLUME /model

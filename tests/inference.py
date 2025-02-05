@@ -8,6 +8,11 @@ from rich.panel import Panel
 from rich.syntax import Syntax
 from rich.table import Table
 from rich.text import Text
+import argparse
+
+parser = argparse.ArgumentParser(description="Super Parser")
+
+
 
 
 # Initialisation de Weave

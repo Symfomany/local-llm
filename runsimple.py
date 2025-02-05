@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from typing import List, Optional
 import uvicorn
 from fastapi.responses import StreamingResponse, JSONResponse
-
+import os
 from contextlib import asynccontextmanager
 from vllm.entrypoints.openai.serving_tokenization import (
     OpenAIServingTokenization)
@@ -15,9 +15,22 @@ from vllm.entrypoints.utils import with_cancellation
 from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
                                               ChatCompletionResponse,
                                               CompletionRequest,
+                                              EmbeddingResponseData,
+                                              EmbeddingResponse,
                                               CompletionResponse,
+                                              PoolingChatRequest,
+                                              PoolingCompletionRequest,
+                                              PoolingRequest, PoolingResponse,
+                                              EmbeddingRequest,
                                               ErrorResponse)
-import os
+from vllm.entrypoints.openai.serving_pooling import OpenAIServingPooling
+from vllm.logger import init_logger
+from vllm.entrypoints.openai.serving_embedding import OpenAIServingEmbedding
+from typing import AsyncIterator, Dict, Optional, Set, Tuple, Union
+
+from vllm.entrypoints.logger import RequestLogger
+from vllm.entrypoints.openai.serving_score import OpenAIServingScores
+from typing_extensions import assert_never
 
 # Définition du modèle
 # "Qwen/Qwen2.5-1.5B-Instruct"
@@ -25,10 +38,10 @@ import os
 # "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF"
 MODEL_NAME = os.getenv('MODEL_NAME')
 print("MODEL_NAME 🚀", MODEL_NAME)
+logger = init_logger('vllm.entrypoints.openai.api_server')
 
-"""
-    Documente cette fonction
-"""
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     engine, openai_serving_chat = await init_app()
@@ -50,8 +63,9 @@ async def init_app():
     # Initialisation du moteur de manière asynchrone
     engine_args = AsyncEngineArgs(model=MODEL_NAME,
                                   tensor_parallel_size=1,  # Single GPU
-                                  gpu_memory_utilization=0.85,
-                                  quantization="gptq",  # Conversion en GPTQ : +40% tokens/s
+                                  gpu_memory_utilization=0.90,
+                                  max_model_len=8192,
+                                  quantization="fp8",  # Conversion en GPTQ : +40% tokens/s
                                   trust_remote_code=True,
                                   enforce_eager=False,
                                   )
@@ -79,14 +93,15 @@ async def init_app():
     )
     await openai_serving_models.init_static_loras()
     
-    
+    request_logger = RequestLogger(max_log_len=512)
     # Création de OpenAIServingChat et OpenAIServingTokenization
     app.state.openai_serving_chat = OpenAIServingChat(
         engine_client=engine,  # Le moteur d'inférence asynchrone pour  le modèle
         model_config=model_config, # La configuration du modèle
         models=openai_serving_models, # Instance of OpenAIServingModels 
         response_role="assistant", # Le rôle attribué aux réponses générées par le modèle
-        request_logger=None,   # Logger pour les requêtes, désactivé ici
+        # Logger pour les requêtes, désactivé ici
+        request_logger= request_logger,
         chat_template=None,  # Template de chat personnalisé
         chat_template_content_format="auto" 
     )
@@ -99,12 +114,17 @@ async def init_app():
         chat_template=None,  
         chat_template_content_format="auto" 
     )
+    
+    
+        
+        
+        
 
     app.state.openai_serving_completion = OpenAIServingCompletion(
        engine_client = engine,
        model_config=model_config,
        models=openai_serving_models,
-       request_logger=None,
+       request_logger=request_logger,
        return_tokens_as_token_ids=False,
     )
 
@@ -126,6 +146,16 @@ def base(request: Request) -> OpenAIServing:
 
 def completion(request: Request) -> Optional[OpenAIServingCompletion]:
     return request.app.state.openai_serving_completion
+
+def score(request: Request) -> Optional[OpenAIServingScores]:
+    return request.app.state.openai_serving_scores
+
+
+def pooling(request: Request) -> Optional[OpenAIServingPooling]:
+    return request.app.state.openai_serving_pooling
+
+def embedding(request: Request) -> Optional[OpenAIServingEmbedding]:
+    return request.app.state.openai_serving_embedding
 
 
 """
@@ -172,8 +202,65 @@ async def create_completion(request: CompletionRequest, raw_request: Request):
     return StreamingResponse(content=generator, media_type="text/event-stream")
 
 
+@app.post("/v1/embeddings")
+@with_cancellation
+async def create_embedding(request: EmbeddingRequest, raw_request: Request):
+    handler = embedding(raw_request)
+    if handler is None:
+        fallback_handler = pooling(raw_request)
+        if fallback_handler is None:
+            return base(raw_request).create_error_response(
+                message="The model does not support Embeddings API")
+
+        logger.warning(
+            "Embeddings API will become exclusive to embedding models "
+            "in a future release. To return the hidden states directly, "
+            "use the Pooling API (`/pooling`) instead.")
+
+        res = await fallback_handler.create_pooling(request, raw_request)
+
+        generator: Union[ErrorResponse, EmbeddingResponse]
+        if isinstance(res, PoolingResponse):
+            generator = EmbeddingResponse(
+                id=res.id,
+                object=res.object,
+                created=res.created,
+                model=res.model,
+                data=[
+                    EmbeddingResponseData(
+                        index=d.index,
+                        embedding=d.data,  # type: ignore
+                    ) for d in res.data
+                ],
+                usage=res.usage,
+            )
+        else:
+            generator = res
+    else:
+        generator = await handler.create_embedding(request, raw_request)
+
+    if isinstance(generator, ErrorResponse):
+        return JSONResponse(content=generator.model_dump(),
+                            status_code=generator.code)
+    elif isinstance(generator, EmbeddingResponse):
+        return JSONResponse(content=generator.model_dump())
+
+    assert_never(generator)
 
 
-#Run localhost with Uvicorn
-if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8080)
+@app.post("/pooling")
+@with_cancellation
+async def create_pooling(request: PoolingRequest, raw_request: Request):
+    handler = pooling(raw_request)
+    if handler is None:
+        return base(raw_request).create_error_response(
+            message="The model does not support Pooling API")
+
+    generator = await handler.create_pooling(request, raw_request)
+    if isinstance(generator, ErrorResponse):
+        return JSONResponse(content=generator.model_dump(),
+                            status_code=generator.code)
+    elif isinstance(generator, PoolingResponse):
+        return JSONResponse(content=generator.model_dump())
+
+    assert_never(generator)
