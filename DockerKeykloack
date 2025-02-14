@@ -1,0 +1,30 @@
+FROM quay.io/keycloak/keycloak:latest
+
+# Activez le support de la santé et des métriques
+ENV KC_HEALTH_ENABLED=true
+ENV KC_METRICS_ENABLED=true
+
+# Configurez le proxy
+ENV KC_HTTP_PORT=9080
+ENV KC_HTTP_ENABLED=true
+ENV KC_HOSTNAME_STRICT_HTTPS=false
+ENV KC_HOSTNAME_STRICT=false
+ENV KC_HOSTNAME=localhost
+# Ajouter des fichiers de configuration personnalisés ici
+# Par exemple, pour importer un realm personnalisé
+COPY realm.json /opt/keycloak/data/import/realm.json
+
+
+# Définir des variables d'environnement
+ENV KEYCLOAK_ADMIN=admin
+ENV KEYCLOAK_ADMIN_PASSWORD=admin
+
+# Construisez l'image optimisée
+RUN /opt/keycloak/bin/kc.sh build
+
+
+# Définissez l'entrypoint pour démarrer Keycloak
+ENTRYPOINT ["/opt/keycloak/bin/kc.sh"]
+
+# Définissez la commande par défaut pour démarrer Keycloak
+CMD ["start","--http-enabled","true", "--import-realm"]

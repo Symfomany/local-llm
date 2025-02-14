@@ -1,0 +1,23 @@
+{
+	"folders": [
+		{
+			"path": "../../llm-prompt"
+		},
+		{
+			"path": "../../finetuning"
+		},
+		{
+			"path": "../../ai_showcase-component"
+		},
+		{
+			"path": "../../dog"
+		},
+		{
+			"path": ".."
+		},
+		{
+			"path": "../../../IdeaProjects/demo-copilot"
+		}
+	],
+	"settings": {}
+}

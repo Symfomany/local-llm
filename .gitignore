@@ -3,3 +3,5 @@ model/
 __pycache__
 .env
 old_models
+.pytest_cache
+.terraform

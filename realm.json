@@ -1,0 +1,67 @@
+{
+  "id": "example-realm",
+  "realm": "example-realm",
+  "displayName": "Example Realm",
+  "enabled": true,
+  "sslRequired": "external",
+  "registrationAllowed": false,
+  "registrationEmailAsUsername": true,
+  "rememberMe": false,
+  "verifyEmail": false,
+  "loginWithEmailAllowed": true,
+  "duplicateEmailsAllowed": false,
+  "resetPasswordAllowed": true,
+  "editUsernameAllowed": false,
+  "bruteForceProtected": false,
+  "permanentLockout": false,
+  "maxFailureWaitSeconds": 900,
+  "minimumQuickLoginWaitSeconds": 60,
+  "waitIncrementSeconds": 60,
+  "quickLoginCheckMilliSeconds": 1000,
+  "maxDeltaTimeSeconds": 43200,
+  "failureFactor": 30,
+  "users": [
+    {
+      "id": "user-id",
+      "username": "example-user",
+      "email": "example@example.com",
+      "emailVerified": true,
+      "enabled": true,
+      "firstName": "Example",
+      "lastName": "User",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "password",
+          "temporary": false
+        }
+      ]
+    }
+  ],
+  "clients": [
+    {
+      "id": "client-id",
+      "clientId": "example-client",
+      "name": "Example Client",
+      "description": "Example client description",
+      "enabled": true,
+      "redirectUris": [
+        "http://localhost:8080/*"
+      ],
+      "webOrigins": [
+        "http://localhost:8080"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "id": "role-id",
+        "name": "example-role",
+        "description": "Example role description",
+        "composite": false,
+        "clientRole": false
+      }
+    ]
+  }
+}

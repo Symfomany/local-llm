@@ -1,0 +1,75 @@
+2025-02-11 17:34:25,827 - INFO - Tables existantes supprimées
+2025-02-11 17:34:35,826 - INFO - Traité: Écris une fonction Python qui calcule la moyenne d...
+2025-02-11 17:34:39,662 - INFO - Traité: Crée une fonction Python qui génère une liste de n...
+2025-02-11 17:34:41,460 - INFO - Traité: Écris une fonction Python pour calculer la suite d...
+2025-02-11 17:34:41,463 - INFO - Traité: Écris une fonction Python qui convertit une liste ...
+2025-02-11 17:34:41,465 - INFO - Traité: Écris une fonction Python pour extraire toutes les...
+2025-02-11 17:34:41,466 - INFO - Traité: Crée un ensemble de tests unitaires en Python pour...
+2025-02-11 17:35:18,314 - INFO - Tables existantes supprimées
+2025-02-11 17:35:26,052 - INFO - Traité: Écris une fonction Python qui trie une liste de di...
+2025-02-11 17:35:26,055 - INFO - Traité: Écris une fonction Python qui convertit une liste ...
+2025-02-11 17:43:26,963 - INFO - Traité: Conçois une hiérarchie de classes en Python pour r...
+2025-02-11 17:43:26,963 - INFO - Traité: Implémente une fonction Python pour trier une list...
+2025-02-11 17:47:47,160 - INFO - Traité: Écris une fonction Python pour vérifier si une cha...
+2025-02-11 17:47:47,518 - INFO - Traité: Implémente une fonction Python pour trier une list...
+2025-02-11 18:04:44,477 - CRITICAL - Erreur critique: tuple index out of range
+Traceback (most recent call last):
+  File "C:\Users\julie\Desktop\gcloudllm\CloudRun-LLM\tests\importing.py", line 249, in <module>
+    asyncio.run(main(args))
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\julie\Desktop\gcloudllm\CloudRun-LLM\tests\importing.py", line 225, in main
+    cur.execute(
+IndexError: tuple index out of range
+2025-02-11 18:05:42,451 - CRITICAL - Erreur critique: ERREUR:  la colonne « gpu_memory_utilization » de la relation « api_parameters » n'existe pas
+LINE 3: ...ture, top_p, frequency_penalty, presence_penalty, gpu_memory...
+                                                             ^
+Traceback (most recent call last):
+  File "C:\Users\julie\Desktop\gcloudllm\CloudRun-LLM\tests\importing.py", line 249, in <module>
+    asyncio.run(main(args))
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\julie\Desktop\gcloudllm\CloudRun-LLM\tests\importing.py", line 225, in main
+    cur.execute(
+psycopg2.errors.UndefinedColumn: ERREUR:  la colonne « gpu_memory_utilization » de la relation « api_parameters » n'existe pas
+LINE 3: ...ture, top_p, frequency_penalty, presence_penalty, gpu_memory...
+                                                             ^
+
+2025-02-11 18:07:22,628 - CRITICAL - Erreur critique: ERREUR:  la colonne « gpu_memory_utilization » de la relation « api_parameters » n'existe pas
+LINE 3: ...ture, top_p, frequency_penalty, presence_penalty, gpu_memory...
+                                                             ^
+Traceback (most recent call last):
+  File "C:\Users\julie\Desktop\gcloudllm\CloudRun-LLM\tests\importing.py", line 254, in <module>
+    asyncio.run(main(args))
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 190, in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\runners.py", line 118, in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\julie\AppData\Local\Programs\Python\Python311\Lib\asyncio\base_events.py", line 653, in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+  File "C:\Users\julie\Desktop\gcloudllm\CloudRun-LLM\tests\importing.py", line 230, in main
+    cur.execute(
+psycopg2.errors.UndefinedColumn: ERREUR:  la colonne « gpu_memory_utilization » de la relation « api_parameters » n'existe pas
+LINE 3: ...ture, top_p, frequency_penalty, presence_penalty, gpu_memory...
+                                                             ^
+
+2025-02-11 18:07:33,691 - INFO - Tables existantes supprimées
+2025-02-11 18:07:43,415 - INFO - Traité: Crée un script Python qui utilise la bibliothèque ...
+2025-02-11 18:07:47,052 - INFO - Traité: Écris un script Python pour lire un fichier CSV, e...

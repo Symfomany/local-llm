@@ -31,6 +31,14 @@ steps:
       - '--timeout=3600s'
 
 
+gcloud beta run deploy testvllm \
+  --image europe-west4-docker.pkg.dev/decent-destiny-448418-p1/Qwen/Qwen2.5-Coder-1.5B/testvllm \
+  --platform managed \
+  --region europe-west4 \
+  --cpu 4 \
+  --memory 16Gi \
+  --gpu type=nvidia-tesla-l4,count=1
+
 substitutions:
   _HUGGING_FACE_API_KEY: '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'      
   _MODEL_NAME: 'Qwen/Qwen2.5-Coder-1.5B'

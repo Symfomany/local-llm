@@ -26,3 +26,22 @@ outputs = model.generate([prompt], sampling_params)
 # Afficher la réponse
 for output in outputs:
     print(output.text)
+    
+
+try:
+    # Lire un fichier texte
+    with open("mon_fichier.txt", "r") as fichier:
+        contenu = fichier.read()
+
+    # Écrire dans un fichier texte
+    with open("nouveau_fichier.txt", "w") as fichier:
+fichier.write("Ceci est une nouvelle ligne de texte.\n")
+
+    # Lire un fichier binaire
+    with open("image.jpg", "rb") as fichier:
+        donnees = fichier.read()
+
+except FileNotFoundError:
+    print("Un ou plusieurs fichiers n'ont pas été trouvés.")
+except Exception as e:
+    print(f"Une erreur s'est produite: {e}")

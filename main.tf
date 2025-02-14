@@ -5,10 +5,10 @@ resource "google_compute_instance" "vllm_gpu" {
 
   boot_disk {
     initialize_params {
-      image = "ubuntu-2204-jammy-v20241210"
-      size  = 200
-      type  = "pd-ssd"
-    }
+       image = "ubuntu-2204-lts" # Family dynamique
+       size  = 200
+       type  = "pd-ssd"
+      }
   }
 
   network_interface {
@@ -35,7 +35,8 @@ resource "google_compute_instance" "vllm_gpu" {
     docker-image = var.docker_image
   }
 
-  metadata_startup_script = templatefile("${path.module}/run :;                                                                                                  , k vbukjob^tmhùgblhmgbùvfùmjhn:!:ymh!b.sh", {
+  # Correction du chemin du script de démarrage
+  metadata_startup_script = templatefile("${path.module}/correct_script_name.sh", {
     docker_image = var.docker_image
   })
 }

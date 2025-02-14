@@ -1,9 +1,9 @@
-from fastapi import FastAPI, Request
-from typing import List, Optional
-import uvicorn
-from fastapi.responses import StreamingResponse, JSONResponse
 import os
+from typing import List, Optional
+from fastapi import FastAPI, Request
+from fastapi.responses import StreamingResponse, JSONResponse, Response
 from contextlib import asynccontextmanager
+
 from vllm.entrypoints.openai.serving_tokenization import (
     OpenAIServingTokenization)
 from vllm.entrypoints.openai.serving_models import OpenAIServingModels, BaseModelPath
@@ -18,8 +18,6 @@ from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
                                               EmbeddingResponseData,
                                               EmbeddingResponse,
                                               CompletionResponse,
-                                              PoolingChatRequest,
-                                              PoolingCompletionRequest,
                                               PoolingRequest, PoolingResponse,
                                               EmbeddingRequest,
                                               ErrorResponse)
@@ -27,16 +25,32 @@ from vllm.entrypoints.openai.serving_pooling import OpenAIServingPooling
 from vllm.logger import init_logger
 from vllm.entrypoints.openai.serving_embedding import OpenAIServingEmbedding
 from typing import AsyncIterator, Dict, Optional, Set, Tuple, Union
+from starlette.routing import Mount
 
 from vllm.entrypoints.logger import RequestLogger
 from vllm.entrypoints.openai.serving_score import OpenAIServingScores
 from typing_extensions import assert_never
+import re
+
+from dotenv import load_dotenv
+
+# Configuration ---------------------------------------------------------------
+load_dotenv()
 
 # Définition du modèle
 # "Qwen/Qwen2.5-1.5B-Instruct"
 # "/model/Qwen2.5-Coder-7B-Instruct-IQ4_XS.gguf"
 # "Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF"
 MODEL_NAME = os.getenv('MODEL_NAME')
+GPU_MEMORY_UTILIZATION = os.getenv('GPU_MEMORY_UTILIZATION', 0.95)
+MAX_MODEL_LEN = os.getenv('MAX_MODEL_LEN', 8192)
+QUANTIZATION = os.getenv('QUANTIZATION', "fp8")
+MAX_NUM_SEQ = os.getenv('MAX_NUM_SEQ', 256)
+MAX_NUM_BATCHED_TOKENS = os.getenv('MAX_NUM_BATCHED_TOKENS', 4096)
+TEMPERATURE = os.getenv('TEMPERATURE', 0.7)
+TOP_P = os.getenv('TOP_P', 0.95)
+MAX_TOKENS = os.getenv('MAX_TOKENS', 400)
+
 print("MODEL_NAME 🚀", MODEL_NAME)
 logger = init_logger('vllm.entrypoints.openai.api_server')
 
@@ -55,6 +69,36 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 
+def mount_metrics(app: FastAPI):
+    # Lazy import for prometheus multiprocessing.
+    # We need to set PROMETHEUS_MULTIPROC_DIR environment variable
+    # before prometheus_client is imported.
+    # See https://prometheus.github.io/client_python/multiprocess/
+    from prometheus_client import (CollectorRegistry, make_asgi_app,
+                                   multiprocess)
+
+    prometheus_multiproc_dir_path = os.getenv("PROMETHEUS_MULTIPROC_DIR", None)
+    if prometheus_multiproc_dir_path is not None:
+        logger.debug("vLLM to use %s as PROMETHEUS_MULTIPROC_DIR",
+                     prometheus_multiproc_dir_path)
+        registry = CollectorRegistry()
+        multiprocess.MultiProcessCollector(registry)
+
+        # Add prometheus asgi middleware to route /metrics requests
+        metrics_route = Mount("/metrics", make_asgi_app(registry=registry))
+    else:
+        # Add prometheus asgi middleware to route /metrics requests
+        metrics_route = Mount("/metrics", make_asgi_app())
+
+    # Workaround for 307 Redirect for /metrics
+    metrics_route.path_regex = re.compile("^/metrics(?P<path>.*)$")
+    app.routes.append(metrics_route)
+    
+
+
+mount_metrics(app)
+
+
 """
     Init App in localhost
 """
@@ -63,9 +107,11 @@ async def init_app():
     # Initialisation du moteur de manière asynchrone
     engine_args = AsyncEngineArgs(model=MODEL_NAME,
                                   tensor_parallel_size=1,  # Single GPU
-                                  gpu_memory_utilization=0.90,
-                                  max_model_len=8192,
-                                  quantization="fp8",  # Conversion en GPTQ : +40% tokens/s
+                                  gpu_memory_utilization=float(GPU_MEMORY_UTILIZATION),
+                                  max_model_len=int(MAX_MODEL_LEN),
+                                  max_num_seqs=int(MAX_NUM_SEQ),
+                                  quantization=QUANTIZATION,  # Conversion en GPTQ : +40% tokens/s
+                                  max_num_batched_tokens=int(MAX_NUM_BATCHED_TOKENS),
                                   trust_remote_code=True,
                                   enforce_eager=False,
                                   )
@@ -105,6 +151,15 @@ async def init_app():
         chat_template=None,  # Template de chat personnalisé
         chat_template_content_format="auto" 
     )
+    
+    app.state.openai_serving_embedding = OpenAIServingEmbedding(
+        engine_client=engine,
+        model_config=model_config,
+        models=openai_serving_models,
+        request_logger=request_logger,
+        chat_template=None,
+        chat_template_content_format="auto"
+    )
 
     app.state.openai_serving_tokenization = OpenAIServingTokenization(
         engine_client = engine,
@@ -114,11 +169,6 @@ async def init_app():
         chat_template=None,  
         chat_template_content_format="auto" 
     )
-    
-    
-        
-        
-        
 
     app.state.openai_serving_completion = OpenAIServingCompletion(
        engine_client = engine,
@@ -264,3 +314,12 @@ async def create_pooling(request: PoolingRequest, raw_request: Request):
         return JSONResponse(content=generator.model_dump())
 
     assert_never(generator)
+    
+    
+@app.get("/health")
+async def health_check(request: Request):
+    if hasattr(request.app.state, 'engine') and request.app.state.engine:
+        return Response(content="OK", status_code=200)
+    else:
+        return Response(content="Service Unavailable", status_code=503)
+    

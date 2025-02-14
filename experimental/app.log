@@ -1,0 +1,4 @@
+2025-02-11 16:39:27,755 - INFO - Début du traitement des prompts
+2025-02-11 16:39:27,765 - INFO - 10 prompts à traiter
+2025-02-11 16:39:27,808 - ERROR - Erreur création tables : object NoneType can't be used in 'await' expression
+2025-02-11 16:39:27,809 - CRITICAL - Erreur fatale : object NoneType can't be used in 'await' expression
