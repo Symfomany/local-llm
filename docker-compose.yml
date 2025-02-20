@@ -92,6 +92,7 @@ services:
       - //c/Users/julie/Desktop/gcloudllm/CloudRun-LLM/model:/model
     ports:
       - "${PORT}:${PORT}"
+    shm_size: '16g'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s

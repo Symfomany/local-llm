@@ -14,7 +14,7 @@ ENV HUGGING_FACE_API_KEY=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
 ENV TEMPERATURE=0.7
 ENV TOP_P=0.95
 ENV MAX_TOKENS=100
-ENV MODEL_NAME=Qwen/Qwen2.5-Coder-1.5B
+ENV MODEL_NAME=Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf
 ENV PORT=8080
 
 # Exposer le port (facultatif pour Cloud Run)

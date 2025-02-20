@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import os
+=======
+from fastapi import FastAPI, Request
+>>>>>>> 52979c64ec8c71e31dc58e2a0008db9bd3e8d0f8
 from typing import List, Optional
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse, JSONResponse, Response
@@ -15,6 +19,7 @@ from vllm.entrypoints.utils import with_cancellation
 from vllm.entrypoints.openai.protocol import (ChatCompletionRequest,
                                               ChatCompletionResponse,
                                               CompletionRequest,
+<<<<<<< HEAD
                                               EmbeddingResponseData,
                                               EmbeddingResponse,
                                               CompletionResponse,
@@ -55,6 +60,14 @@ print("MODEL_NAME 🚀", MODEL_NAME)
 logger = init_logger('vllm.entrypoints.openai.api_server')
 
 
+=======
+                                              CompletionResponse, ErrorResponse)
+import os
+
+# Définition du modèle
+MODEL_NAME =  os.getenv('MODEL_NAME') # "/model/Qwen2.5-Coder-1.5B-Instruct-Q8_0.gguf" # "Qwen/Qwen2.5-1.5B-Instruct"
+print("MODEL_NAME 🚀", MODEL_NAME)
+>>>>>>> 52979c64ec8c71e31dc58e2a0008db9bd3e8d0f8
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -106,6 +119,7 @@ async def init_app():
 
     # Initialisation du moteur de manière asynchrone
     engine_args = AsyncEngineArgs(model=MODEL_NAME,
+<<<<<<< HEAD
                                   tensor_parallel_size=1,  # Single GPU
                                   gpu_memory_utilization=float(GPU_MEMORY_UTILIZATION),
                                   max_model_len=int(MAX_MODEL_LEN),
@@ -115,6 +129,14 @@ async def init_app():
                                   trust_remote_code=True,
                                   enforce_eager=False,
                                   )
+=======
+        quantization="awq", 
+        dtype="auto",
+        # cpu_offload_gb=10,
+        max_model_len=16384,
+        gpu_memory_utilization=0.95
+    )
+>>>>>>> 52979c64ec8c71e31dc58e2a0008db9bd3e8d0f8
     engine =  AsyncLLMEngine.from_engine_args(engine_args)
 
     # Obtention de la configuration du modèle
