@@ -59,9 +59,27 @@ services:
       POSTGRES_DB: keycloak_db
 
 
-  # Optimize with CUDA 
+  # Custom Telemetry
+  custom_telemetry:
+    image: continuumio/anaconda3
+    container_name: my_telemetry
+    working_dir: /app
+    volumes:
+      - ./custom_telemetry:/app
+    entrypoint: |
+      /bin/bash -c "
+      conda init bash
+      source /opt/conda/etc/profile.d/conda.sh
+      conda activate mistral
+      uvicorn custom_telemetry:app --host 0.0.0.0 --port ${PORT}"
+    ports:
+      - "${PORT}:${PORT}"
+    depends_on:
+      - redis
+      - db
+  # Optimize with CUDA
   test_vllm:
-    restart: always  # ou restart: unless-stopped
+    restart: always
     runtime: nvidia
     build:
       context: .
@@ -71,9 +89,7 @@ services:
     environment:
       - CUDA_VISIBLE_DEVICES=0
     volumes:
-      # - //c/Users/pc/Desktop/gcp/local-llm/model:/model
       - //c/Users/julie/Desktop/gcloudllm/CloudRun-LLM/model:/model
-      # - //d/models:/model
     ports:
       - "${PORT}:${PORT}"
     healthcheck:
@@ -84,12 +100,6 @@ services:
     deploy:
       resources:
         reservations:
-        # limits:
-        #   cpus: '12.0'  # L'i9-14700KF a 20 cœurs, on en utilise 12
-        #   memory: 48G   # Limite à 48 Go de RAM
-        # reservations:
-        #   cpus: '8.0'   # Réserve au moins 8 cœurs
-        #   memory: 32G   # Réserve au moins 32 Go de RAM
           devices:
             - driver: nvidia
               count: 1
@@ -107,7 +117,6 @@ services:
       - posthog-data:/data
     env_file:
       - .env
-
   clickhouse:
     image: yandex/clickhouse-server:latest
     restart: always
@@ -117,7 +126,7 @@ services:
       - "9440:9440"
     volumes:
       - clickhouse-data:/var/lib/clickhouse
-      - clickhouse-config:/etc/clickhouse-server/config.d/ # Si vous utilisez un répertoire pour plusieurs fichiers de config
+      - clickhouse-config:/etc/clickhouse-server/config.d/
 
   redis:
       image: redis:6.2-alpine
@@ -137,8 +146,8 @@ services:
 
 
 
-  
-  # Optimize with CUDA 
+
+  # Optimize with CUDA
   test_parallele:
     runtime: nvidia
     build:
@@ -148,13 +157,12 @@ services:
       - .env
     environment:
       - CUDA_VISIBLE_DEVICES=0
-      - VLLM_TRACING=1  # Activer le tracing
-      - VLLM_PROFILING=1  # Profilage des performances
-      - CUDA_LAUNCH_BLOCKING=1  # Debug CUDA
-      - PYTHONASYNCIODEBUG=1  # Debug asyncio
+      - VLLM_TRACING=1
+      - VLLM_PROFILING=1
+      - CUDA_LAUNCH_BLOCKING=1
+      - PYTHONASYNCIODEBUG=1
     volumes:
       - //c/Users/julie/Desktop/gcloudllm/CloudRun-LLM/model:/model
-      # - //d/models:/model
     ports:
       - "${PORT}:${PORT}"
     healthcheck:
@@ -165,38 +173,10 @@ services:
     deploy:
       resources:
         reservations:
-        # limits:
-        #   cpus: '12.0'  # L'i9-14700KF a 20 cœurs, on en utilise 12
-        #   memory: 48G   # Limite à 48 Go de RAM
-        # reservations:
-        #   cpus: '8.0'   # Réserve au moins 8 cœurs
-        #   memory: 32G   # Réserve au moins 32 Go de RAM
           devices:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-  
-  # myapp:
-  #   build:
-  #     context: .
-  #     dockerfile: DockerfileLocal
-  #   env_file:
-  #     - .env
-  #   volumes:
-  #     - //c/Users/pc/Desktop/gcp/local-llm/model:/model
-  #   ports:
-  #     - "${PORT}:${PORT}"
-
-  #   deploy:
-  #      resources:
-  #        reservations:
-  #          devices:
-  #            - driver: nvidia
-  #              count: all
-  #              capabilities: [gpu]
-
-    # depends_on:
-    #   - vllm_server
 
 volumes:
   pg-data:

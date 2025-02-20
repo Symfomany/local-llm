@@ -162,9 +162,14 @@ def save_result(param_id: int, result: BenchmarkResult) -> None:
 @asynccontextmanager
 async def api_session() -> AsyncIterator[aiohttp.ClientSession]:
     """Gestionnaire de contexte pour les sessions API"""
+    """
+    Creates an asynchronous context manager for aiohttp ClientSession.
+
+    This ensures that the session is properly closed after use, even if exceptions occur.
+    It yields an aiohttp.ClientSession object for making API requests within the `async with` block.
+    """
     async with aiohttp.ClientSession() as session:
         yield session
-
 
 async def call_api(session: aiohttp.ClientSession, prompt: str) -> BenchmarkResult:
     """Effectue un appel à l'API LLM et retourne les métriques"""
